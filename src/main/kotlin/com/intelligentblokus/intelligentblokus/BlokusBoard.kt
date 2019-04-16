@@ -1,5 +1,7 @@
 package com.intelligentblokus.intelligentblokus
 
+import org.slf4j.LoggerFactory
+
 /**
  * Blokus board model and utility functions.
  */
@@ -9,6 +11,7 @@ class BlokusBoard(
          */
         private val board: MutableList<MutableList<Int>> = initBoard()
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
 
     companion object {
         const val BOARD_SIZE = 5
@@ -32,17 +35,19 @@ class BlokusBoard(
      * Plays the given move, if it is valid.
      */
     fun playMove(blokusMove: BlokusMove): BlokusBoard {
+        if (isValidMove(blokusMove).not()) {
+            throw IllegalArgumentException("The move is invalid")
+        }
         val (player, pieceVariation, x, y) = blokusMove
         controlOutOfBoundsPosition(x, y)
         val piece = pieceVariation.shape
-        if (isNotEmpty(piece, x, y)) {
-            throw IllegalArgumentException("The piece cannot be placed at the position [$x, $y] because the space is already taken.")
-        }
         val pieceXSize = piece.size
         val pieceYSize = piece[0].size
         for (i in 0 until pieceXSize) {
             for (j in 0 until pieceYSize) {
-                board[i + x][j + y] = player.code
+                if (piece[i][j] != 0) {
+                    board[i + x][j + y] = player.code
+                }
             }
         }
         return this
@@ -61,7 +66,8 @@ class BlokusBoard(
         val pieceYSize = piece[0].size
         for (i in 0 until pieceXSize) {
             for (j in 0 until pieceYSize) {
-                if (isNotEmpty(i + x, j + y)) {
+                if (piece[i][j] != 0 && isNotEmpty(i + x, j + y)) {
+                    log.debug("The position [ ${i+x} , ${j+y} ] is taken.")
                     return false
                 }
             }
@@ -74,11 +80,20 @@ class BlokusBoard(
     }
 
     fun isValidMove(move: BlokusMove): Boolean {
-        val x = move.x
-        val y = move.y
+        val (player, _, x, y) = move
         controlOutOfBoundsPosition(x, y)
+        if (isFirstMove(player)) {
+            log.debug("Player $player first move.")
+            // For now, let the player chose his first move without constraints.
+            return true
+        }
         return isEmpty(move.pieceVariation.shape, x, y)
                 && touchesBySide(move).not()
+                && isPieceLinkedDiagonally(move)
+    }
+
+    private fun isFirstMove(player: BlokusPlayer): Boolean {
+        return board.flatten().none { it == player.code }
     }
 
     private fun touchesBySide(move: BlokusMove): Boolean {
@@ -88,7 +103,8 @@ class BlokusBoard(
         val pieceYSize = piece[0].size
         for (i in 0 until pieceXSize) {
             for (j in 0 until pieceYSize) {
-                if (hasSamePlayerNeighbor(player, i + x, j + y)) {
+                if (piece[i][j] != 0 && hasSamePlayerNeighbor(player, i + x, j + y)) {
+                    log.debug("Invalid move. The piece touches a same color tile at position [ ${i+x} , ${j+y} ]")
                     return true
                 }
             }
@@ -102,6 +118,30 @@ class BlokusBoard(
                 || x + 1 < BOARD_SIZE && peek(x + 1, y) == playerCode
                 || y - 1 >= 0 && peek(x, y - 1) == playerCode
                 || y + 1 < BOARD_SIZE && peek(x, y + 1) == playerCode
+    }
+
+    private fun isPieceLinkedDiagonally(move: BlokusMove): Boolean {
+        val (player, pieceVariation, x, y) = move
+        val piece = pieceVariation.shape
+        val pieceXSize = piece.size
+        val pieceYSize = piece[0].size
+        for (i in 0 until pieceXSize) {
+            for (j in 0 until pieceYSize) {
+                if (piece[i][j] != 0 && hasSamePlayerDiagonalNeighbor(player, i + x, j + y)) {
+                    return true
+                }
+            }
+        }
+        log.debug("Invalid move. The piece is not linked to another piece of the same player")
+        return false
+    }
+
+    private fun hasSamePlayerDiagonalNeighbor(player: BlokusPlayer, x: Int, y: Int): Boolean {
+        val playerCode = player.code
+        return x - 1 >= 0 && y - 1 >= 0 && peek(x - 1, y - 1) == playerCode
+                || x + 1 < BOARD_SIZE && y - 1 >= 0 && peek(x + 1, y - 1) == playerCode
+                || x - 1 >= 0 && y + 1 < BOARD_SIZE && peek(x - 1, y + 1) == playerCode
+                || x + 1 < BOARD_SIZE && y + 1 < BOARD_SIZE && peek(x + 1, y + 1) == playerCode
     }
 
     /**
