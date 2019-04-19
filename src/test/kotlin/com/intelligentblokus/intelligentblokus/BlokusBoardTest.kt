@@ -71,7 +71,7 @@ internal class BlokusBoardTest {
         val blokusBoard = BlokusBoard()
         blokusBoard.playMove(MOVE)
         val illegalArgumentException = assertThrows<IllegalArgumentException> { blokusBoard.playMove(MOVE) }
-        assertThat(illegalArgumentException.message, `is`("The piece cannot be placed at the position [${MOVE.x}, ${MOVE.y}] because the space is already taken."))
+        assertThat(illegalArgumentException.message, `is`("The move is invalid"))
     }
 
     @Test

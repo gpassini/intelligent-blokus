@@ -20,7 +20,7 @@ class BlokusShell {
 
     @ShellMethod(value = "Play randomly.", key = ["r"])
     fun playRandom(): String {
-        val availableMoves = this.blokusService.getAvailableMoves(blokusBoard, BlokusPlayer.BLACK, listOf(BlokusPiece1()))
+        val availableMoves = this.blokusService.getAvailableMoves(blokusBoard, listOf(BlokusPiece1()))
         if (availableMoves.isEmpty()) {
             return "Game over"
         }

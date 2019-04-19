@@ -9,7 +9,9 @@ class BlokusBoard(
         /**
          * 2D matrix representing the board.
          */
-        private val board: MutableList<MutableList<Int>> = initBoard()
+        private val board: List<MutableList<Int>> = initBoard(),
+
+        private var turn: Int = 0
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -17,7 +19,7 @@ class BlokusBoard(
         const val BOARD_SIZE = 5
 
         @JvmStatic
-        private fun initBoard(): MutableList<MutableList<Int>> = IntRange(0, BOARD_SIZE - 1).map { initLine() }.toCollection(mutableListOf())
+        private fun initBoard(): List<MutableList<Int>> = IntRange(0, BOARD_SIZE - 1).map { initLine() }.toList()
 
         @JvmStatic
         private fun initLine(): MutableList<Int> = IntRange(0, BOARD_SIZE - 1).map { 0 }.toCollection(mutableListOf())
@@ -36,10 +38,9 @@ class BlokusBoard(
      */
     fun playMove(blokusMove: BlokusMove): BlokusBoard {
         if (isValidMove(blokusMove).not()) {
-            throw IllegalArgumentException("The move is invalid")
+            throw IllegalArgumentException("The move is invalid.")
         }
         val (player, pieceVariation, x, y) = blokusMove
-        controlOutOfBoundsPosition(x, y)
         val piece = pieceVariation.shape
         val pieceXSize = piece.size
         val pieceYSize = piece[0].size
@@ -50,6 +51,7 @@ class BlokusBoard(
                 }
             }
         }
+        turn++
         return this
     }
 
@@ -61,87 +63,27 @@ class BlokusBoard(
         return this.isEmpty(x, y).not()
     }
 
-    fun isEmpty(piece: List<List<Int>>, x: Int, y: Int): Boolean {
-        val pieceXSize = piece.size
-        val pieceYSize = piece[0].size
-        for (i in 0 until pieceXSize) {
-            for (j in 0 until pieceYSize) {
-                if (piece[i][j] != 0 && isNotEmpty(i + x, j + y)) {
-                    log.debug("The position [ ${i+x} , ${j+y} ] is taken.")
-                    return false
-                }
-            }
-        }
-        return true
-    }
-
-    fun isNotEmpty(piece: List<List<Int>>, x: Int, y: Int): Boolean {
-        return isEmpty(piece, x, y).not()
-    }
-
+    /**
+     * Returns true if the move is valid.
+     */
     fun isValidMove(move: BlokusMove): Boolean {
         val (player, _, x, y) = move
+        controlPlayerTurn(player)
         controlOutOfBoundsPosition(x, y)
         if (isFirstMove(player)) {
             log.debug("Player $player first move.")
-            // For now, let the player chose his first move without constraints.
-            return true
+            val startingPosition = getStartingPosition(player)
+            return x == startingPosition && y == startingPosition
         }
         return isEmpty(move.pieceVariation.shape, x, y)
                 && touchesBySide(move).not()
                 && isPieceLinkedDiagonally(move)
     }
 
-    private fun isFirstMove(player: BlokusPlayer): Boolean {
-        return board.flatten().none { it == player.code }
-    }
-
-    private fun touchesBySide(move: BlokusMove): Boolean {
-        val (player, pieceVariation, x, y) = move
-        val piece = pieceVariation.shape
-        val pieceXSize = piece.size
-        val pieceYSize = piece[0].size
-        for (i in 0 until pieceXSize) {
-            for (j in 0 until pieceYSize) {
-                if (piece[i][j] != 0 && hasSamePlayerNeighbor(player, i + x, j + y)) {
-                    log.debug("Invalid move. The piece touches a same color tile at position [ ${i+x} , ${j+y} ]")
-                    return true
-                }
-            }
-        }
-        return false
-    }
-
-    private fun hasSamePlayerNeighbor(player: BlokusPlayer, x: Int, y: Int): Boolean {
-        val playerCode = player.code
-        return x - 1 >= 0 && peek(x - 1, y) == playerCode
-                || x + 1 < BOARD_SIZE && peek(x + 1, y) == playerCode
-                || y - 1 >= 0 && peek(x, y - 1) == playerCode
-                || y + 1 < BOARD_SIZE && peek(x, y + 1) == playerCode
-    }
-
-    private fun isPieceLinkedDiagonally(move: BlokusMove): Boolean {
-        val (player, pieceVariation, x, y) = move
-        val piece = pieceVariation.shape
-        val pieceXSize = piece.size
-        val pieceYSize = piece[0].size
-        for (i in 0 until pieceXSize) {
-            for (j in 0 until pieceYSize) {
-                if (piece[i][j] != 0 && hasSamePlayerDiagonalNeighbor(player, i + x, j + y)) {
-                    return true
-                }
-            }
-        }
-        log.debug("Invalid move. The piece is not linked to another piece of the same player")
-        return false
-    }
-
-    private fun hasSamePlayerDiagonalNeighbor(player: BlokusPlayer, x: Int, y: Int): Boolean {
-        val playerCode = player.code
-        return x - 1 >= 0 && y - 1 >= 0 && peek(x - 1, y - 1) == playerCode
-                || x + 1 < BOARD_SIZE && y - 1 >= 0 && peek(x + 1, y - 1) == playerCode
-                || x - 1 >= 0 && y + 1 < BOARD_SIZE && peek(x - 1, y + 1) == playerCode
-                || x + 1 < BOARD_SIZE && y + 1 < BOARD_SIZE && peek(x + 1, y + 1) == playerCode
+    fun getNextPlayer(): BlokusPlayer {
+        val numberOfPlayers = BlokusPlayer.values().size
+        val playerOrdinalNumber = turn % numberOfPlayers
+        return BlokusPlayer.values()[playerOrdinalNumber]
     }
 
     /**
@@ -158,12 +100,108 @@ class BlokusBoard(
         return stringBuilder.toString()
     }
 
+    private fun isEmpty(piece: List<List<Int>>, x: Int, y: Int): Boolean {
+        val pieceXSize = piece.size
+        val pieceYSize = piece[0].size
+        for (i in 0 until pieceXSize) {
+            for (j in 0 until pieceYSize) {
+                if (piece[i][j] != 0 && isNotEmpty(i + x, j + y)) {
+                    log.debug("The position [ ${i + x} , ${j + y} ] is taken.")
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    /**
+     * Returns true if it is the first move from the given player.
+     */
+    private fun isFirstMove(player: BlokusPlayer): Boolean {
+        return board.flatten().none { it == player.code }
+    }
+
+    /**
+     * Returns true if the attempted move results is a piece touching another piece from the same player by the side (it is an invalid move).
+     */
+    private fun touchesBySide(move: BlokusMove): Boolean {
+        val (player, pieceVariation, x, y) = move
+        val piece = pieceVariation.shape
+        val pieceXSize = piece.size
+        val pieceYSize = piece[0].size
+        for (i in 0 until pieceXSize) {
+            for (j in 0 until pieceYSize) {
+                if (piece[i][j] != 0 && hasSamePlayerNeighbor(player, i + x, j + y)) {
+                    log.debug("Invalid move. The piece touches a same color tile at position [ ${i + x} , ${j + y} ]")
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     /**
      * Throws an [IllegalArgumentException] if at least one of the given coordinates does not exist on the board.
      */
     private fun controlOutOfBoundsPosition(x: Int, y: Int) {
         if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
             throw IllegalArgumentException("One of the coordinates [ $x, $y ] is invalid. Expected 0 <= [coordinate] < $BOARD_SIZE.")
+        }
+    }
+
+    /**
+     * Returns true if one of the four adjacent tiles (upper, bottom, right, left) to the given position is already occupied by a piece of the given player.
+     */
+    private fun hasSamePlayerNeighbor(player: BlokusPlayer, x: Int, y: Int): Boolean {
+        val playerCode = player.code
+        return x - 1 >= 0 && peek(x - 1, y) == playerCode
+                || x + 1 < BOARD_SIZE && peek(x + 1, y) == playerCode
+                || y - 1 >= 0 && peek(x, y - 1) == playerCode
+                || y + 1 < BOARD_SIZE && peek(x, y + 1) == playerCode
+    }
+
+    /**
+     * Returns true if the attempted move results in a piece connected by at least one corner to another piece of the same player (it is a requirement for a valid move).
+     */
+    private fun isPieceLinkedDiagonally(move: BlokusMove): Boolean {
+        val (player, pieceVariation, x, y) = move
+        val piece = pieceVariation.shape
+        val pieceXSize = piece.size
+        val pieceYSize = piece[0].size
+        for (i in 0 until pieceXSize) {
+            for (j in 0 until pieceYSize) {
+                if (piece[i][j] != 0 && hasSamePlayerDiagonalNeighbor(player, i + x, j + y)) {
+                    return true
+                }
+            }
+        }
+        log.debug("Invalid move. The piece is not linked to another piece of the same player")
+        return false
+    }
+
+    /**
+     * Returns true if one of the four cornering tiles of the given position is already occupied by a piece of the given player.
+     */
+    private fun hasSamePlayerDiagonalNeighbor(player: BlokusPlayer, x: Int, y: Int): Boolean {
+        val playerCode = player.code
+        return x - 1 >= 0 && y - 1 >= 0 && peek(x - 1, y - 1) == playerCode
+                || x + 1 < BOARD_SIZE && y - 1 >= 0 && peek(x + 1, y - 1) == playerCode
+                || x - 1 >= 0 && y + 1 < BOARD_SIZE && peek(x - 1, y + 1) == playerCode
+                || x + 1 < BOARD_SIZE && y + 1 < BOARD_SIZE && peek(x + 1, y + 1) == playerCode
+    }
+
+    private fun getStartingPosition(player: BlokusPlayer): Int {
+        val offset = (BOARD_SIZE - 1) / 4
+        return when (player) {
+            BlokusPlayer.BLACK -> offset
+            BlokusPlayer.WHITE -> BOARD_SIZE - 1 - offset
+        }
+    }
+
+    private fun controlPlayerTurn(player: BlokusPlayer) {
+        val expectedPlayer = getNextPlayer()
+        if (expectedPlayer != player) {
+            throw IllegalArgumentException("It is not player $player's turn. It is player $expectedPlayer's turn.")
         }
     }
 

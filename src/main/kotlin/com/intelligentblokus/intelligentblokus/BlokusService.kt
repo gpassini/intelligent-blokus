@@ -5,7 +5,8 @@ import org.springframework.stereotype.Service
 @Service
 class BlokusService {
 
-    fun getAvailableMoves(board: BlokusBoard, player: BlokusPlayer, availablePieces: List<BlokusPiece>): List<BlokusMove> {
+    fun getAvailableMoves(board: BlokusBoard, availablePieces: List<BlokusPiece>): List<BlokusMove> {
+        val player = board.getNextPlayer()
         return availablePieces.flatMap { it.getVariations() }.flatMap { this.getPieceVariationMoves(it, board, player) }
     }
 
