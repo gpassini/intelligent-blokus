@@ -1,6 +1,7 @@
 package com.intelligentblokus.intelligentblokus
 
 import com.intelligentblokus.intelligentblokus.piece.BlokusPiece1
+import com.intelligentblokus.intelligentblokus.piece.BlokusPiece2
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.shell.standard.ShellComponent
 import org.springframework.shell.standard.ShellMethod
@@ -20,8 +21,9 @@ class BlokusShell {
 
     @ShellMethod(value = "Play randomly.", key = ["r"])
     fun playRandom(): String {
-        val availableMoves = this.blokusService.getAvailableMoves(blokusBoard, listOf(BlokusPiece1()))
+        val availableMoves = blokusService.getAvailableMoves(blokusBoard, listOf(BlokusPiece1(), BlokusPiece2()))
         if (availableMoves.isEmpty()) {
+            blokusService.passTurn(blokusBoard)
             return "Game over"
         }
         return blokusBoard.playMove(availableMoves.shuffled()[0]).toString()

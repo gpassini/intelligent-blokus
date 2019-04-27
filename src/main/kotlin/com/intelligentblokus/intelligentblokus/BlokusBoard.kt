@@ -55,6 +55,12 @@ class BlokusBoard(
         return this
     }
 
+    fun passTurn() {
+        val player = getNextPlayer()
+        log.info("Player $player passes their turn.")
+        turn++
+    }
+
     fun isEmpty(x: Int, y: Int): Boolean {
         return this.peek(x, y) == 0
     }

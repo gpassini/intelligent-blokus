@@ -10,6 +10,10 @@ class BlokusService {
         return availablePieces.flatMap { it.getVariations() }.flatMap { this.getPieceVariationMoves(it, board, player) }
     }
 
+    fun passTurn(board: BlokusBoard) {
+        board.passTurn()
+    }
+
     private fun getPieceVariationMoves(pieceVariation: BlokusPieceVariation, board: BlokusBoard, player: BlokusPlayer): List<BlokusMove> {
         val availableMoves: MutableList<BlokusMove> = mutableListOf()
         val pieceShape = pieceVariation.shape
