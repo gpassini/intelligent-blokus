@@ -7,10 +7,7 @@ import org.springframework.shell.standard.ShellComponent
 import org.springframework.shell.standard.ShellMethod
 
 @ShellComponent
-class BlokusShell {
-
-    @Autowired
-    private lateinit var blokusService: BlokusService
+class BlokusShell @Autowired constructor(private val blokusService: BlokusService) {
 
     private val blokusBoard = BlokusBoard()
 

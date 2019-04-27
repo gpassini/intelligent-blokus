@@ -2,4 +2,4 @@ logging:
   level:
     root: warn
     org.springframework: info
-    com.intelligentblokus: debug
+    com.intelligentblokus: info
