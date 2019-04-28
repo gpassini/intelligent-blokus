@@ -12,7 +12,7 @@ internal class BlokusBoardTest {
 
     private companion object {
         const val EMPTY_TILE = 0
-        val MOVE = BlokusMove(BlokusPlayer.BLACK, BlokusPiece1().getVariations()[0], 0, 0)
+        val MOVE = BlokusMove(BlokusPlayerEnum.BLACK, BlokusPiece1.getVariations()[0], 0, 0)
     }
 
     @Test

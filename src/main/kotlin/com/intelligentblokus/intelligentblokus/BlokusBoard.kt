@@ -86,10 +86,10 @@ class BlokusBoard(
                 && isPieceLinkedDiagonally(move)
     }
 
-    fun getNextPlayer(): BlokusPlayer {
-        val numberOfPlayers = BlokusPlayer.values().size
+    fun getNextPlayer(): BlokusPlayerEnum {
+        val numberOfPlayers = BlokusPlayerEnum.values().size
         val playerOrdinalNumber = turn % numberOfPlayers
-        return BlokusPlayer.values()[playerOrdinalNumber]
+        return BlokusPlayerEnum.values()[playerOrdinalNumber]
     }
 
     /**
@@ -123,8 +123,8 @@ class BlokusBoard(
     /**
      * Returns true if it is the first move from the given player.
      */
-    private fun isFirstMove(player: BlokusPlayer): Boolean {
-        return board.flatten().none { it == player.code }
+    private fun isFirstMove(playerEnum: BlokusPlayerEnum): Boolean {
+        return board.flatten().none { it == playerEnum.code }
     }
 
     /**
@@ -158,8 +158,8 @@ class BlokusBoard(
     /**
      * Returns true if one of the four adjacent tiles (upper, bottom, right, left) to the given position is already occupied by a piece of the given player.
      */
-    private fun hasSamePlayerNeighbor(player: BlokusPlayer, x: Int, y: Int): Boolean {
-        val playerCode = player.code
+    private fun hasSamePlayerNeighbor(playerEnum: BlokusPlayerEnum, x: Int, y: Int): Boolean {
+        val playerCode = playerEnum.code
         return x - 1 >= 0 && peek(x - 1, y) == playerCode
                 || x + 1 < BOARD_SIZE && peek(x + 1, y) == playerCode
                 || y - 1 >= 0 && peek(x, y - 1) == playerCode
@@ -188,26 +188,26 @@ class BlokusBoard(
     /**
      * Returns true if one of the four cornering tiles of the given position is already occupied by a piece of the given player.
      */
-    private fun hasSamePlayerDiagonalNeighbor(player: BlokusPlayer, x: Int, y: Int): Boolean {
-        val playerCode = player.code
+    private fun hasSamePlayerDiagonalNeighbor(playerEnum: BlokusPlayerEnum, x: Int, y: Int): Boolean {
+        val playerCode = playerEnum.code
         return x - 1 >= 0 && y - 1 >= 0 && peek(x - 1, y - 1) == playerCode
                 || x + 1 < BOARD_SIZE && y - 1 >= 0 && peek(x + 1, y - 1) == playerCode
                 || x - 1 >= 0 && y + 1 < BOARD_SIZE && peek(x - 1, y + 1) == playerCode
                 || x + 1 < BOARD_SIZE && y + 1 < BOARD_SIZE && peek(x + 1, y + 1) == playerCode
     }
 
-    private fun getStartingPosition(player: BlokusPlayer): Int {
+    private fun getStartingPosition(playerEnum: BlokusPlayerEnum): Int {
         val offset = (BOARD_SIZE - 1) / 4
-        return when (player) {
-            BlokusPlayer.BLACK -> offset
-            BlokusPlayer.WHITE -> BOARD_SIZE - 1 - offset
+        return when (playerEnum) {
+            BlokusPlayerEnum.BLACK -> offset
+            BlokusPlayerEnum.WHITE -> BOARD_SIZE - 1 - offset
         }
     }
 
-    private fun controlPlayerTurn(player: BlokusPlayer) {
+    private fun controlPlayerTurn(playerEnum: BlokusPlayerEnum) {
         val expectedPlayer = getNextPlayer()
-        if (expectedPlayer != player) {
-            throw IllegalArgumentException("It is not player $player's turn. It is player $expectedPlayer's turn.")
+        if (expectedPlayer != playerEnum) {
+            throw IllegalArgumentException("It is not player $playerEnum's turn. It is player $expectedPlayer's turn.")
         }
     }
 

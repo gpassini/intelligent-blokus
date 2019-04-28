@@ -14,7 +14,7 @@ class BlokusService {
         board.passTurn()
     }
 
-    private fun getPieceVariationMoves(pieceVariation: BlokusPieceVariation, board: BlokusBoard, player: BlokusPlayer): List<BlokusMove> {
+    private fun getPieceVariationMoves(pieceVariation: BlokusPieceVariation, board: BlokusBoard, playerEnum: BlokusPlayerEnum): List<BlokusMove> {
         val availableMoves: MutableList<BlokusMove> = mutableListOf()
         val pieceShape = pieceVariation.shape
         val xPieceSize = pieceShape.size
@@ -23,7 +23,7 @@ class BlokusService {
         val yLimit = BlokusBoard.BOARD_SIZE - yPieceSize + 1
         for (i in 0 until xLimit) {
             for (j in 0 until yLimit) {
-                val move = BlokusMove(player, pieceVariation, i, j)
+                val move = BlokusMove(playerEnum, pieceVariation, i, j)
                 if (board.isValidMove(move)) {
                     availableMoves.add(move)
                 }
