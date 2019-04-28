@@ -1,20 +1,22 @@
 package com.intelligentblokus.intelligentblokus
 
+import com.intelligentblokus.intelligentblokus.piece.BlokusPiece
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
-class BlokusService {
+class BlokusService @Autowired constructor(val board: BlokusBoard) {
 
-    fun getAvailableMoves(board: BlokusBoard, availablePieces: List<BlokusPiece>): List<BlokusMove> {
+    fun getAvailableMoves(availablePieces: List<BlokusPiece>): List<BlokusMove> {
         val player = board.getNextPlayer()
-        return availablePieces.flatMap { it.getVariations() }.flatMap { this.getPieceVariationMoves(it, board, player) }
+        return availablePieces.flatMap { it.getVariations() }.flatMap { this.getPieceVariationMoves(it, player) }
     }
 
-    fun passTurn(board: BlokusBoard) {
+    fun passTurn() {
         board.passTurn()
     }
 
-    private fun getPieceVariationMoves(pieceVariation: BlokusPieceVariation, board: BlokusBoard, playerEnum: BlokusPlayerEnum): List<BlokusMove> {
+    private fun getPieceVariationMoves(pieceVariation: BlokusPieceVariation, playerEnum: BlokusPlayerEnum): List<BlokusMove> {
         val availableMoves: MutableList<BlokusMove> = mutableListOf()
         val pieceShape = pieceVariation.shape
         val xPieceSize = pieceShape.size

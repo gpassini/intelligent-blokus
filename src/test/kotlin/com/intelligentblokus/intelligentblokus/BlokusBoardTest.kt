@@ -1,6 +1,6 @@
 package com.intelligentblokus.intelligentblokus
 
-import com.intelligentblokus.intelligentblokus.piece.BlokusPiece1
+import com.intelligentblokus.intelligentblokus.piece.impl.BlokusPiece1
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.Is.`is`
 import org.hamcrest.core.IsNot.not

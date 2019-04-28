@@ -1,13 +1,14 @@
 package com.intelligentblokus.intelligentblokus
 
-import com.intelligentblokus.intelligentblokus.piece.BlokusPiece1
+import com.intelligentblokus.intelligentblokus.piece.BlokusPiece
+import com.intelligentblokus.intelligentblokus.piece.impl.BlokusPiece1
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.shell.standard.ShellComponent
 import org.springframework.shell.standard.ShellMethod
 
 @ShellComponent
 class BlokusShell @Autowired constructor(private val blokusService: BlokusService,
-                                         private val pieces: List<BlokusPiece> ) {
+                                         @Suppress("SpringJavaInjectionPointsAutowiringInspection") private val pieces: List<BlokusPiece> ) {
 
     private val blokusBoard = BlokusBoard()
 
@@ -16,11 +17,13 @@ class BlokusShell @Autowired constructor(private val blokusService: BlokusServic
         return blokusBoard.playMove(BlokusMove(BlokusPlayerEnum.BLACK, BlokusPiece1.getVariations()[0], x, y)).toString()
     }
 
+
+
     @ShellMethod(value = "Play randomly.", key = ["r"])
     fun playRandom(): String {
-        val availableMoves = blokusService.getAvailableMoves(blokusBoard, pieces)
+        val availableMoves = blokusService.getAvailableMoves(pieces)
         if (availableMoves.isEmpty()) {
-            blokusService.passTurn(blokusBoard)
+            blokusService.passTurn()
             return "Game over"
         }
         return blokusBoard.playMove(availableMoves.shuffled()[0]).toString()

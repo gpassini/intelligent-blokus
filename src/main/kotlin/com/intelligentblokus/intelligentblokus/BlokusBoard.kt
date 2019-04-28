@@ -1,10 +1,12 @@
 package com.intelligentblokus.intelligentblokus
 
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 
 /**
  * Blokus board model and utility functions.
  */
+@Component
 class BlokusBoard(
         /**
          * 2D matrix representing the board.

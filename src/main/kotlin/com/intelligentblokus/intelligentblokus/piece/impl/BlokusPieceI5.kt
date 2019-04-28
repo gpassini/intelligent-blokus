@@ -1,8 +1,8 @@
-package com.intelligentblokus.intelligentblokus.piece
+package com.intelligentblokus.intelligentblokus.piece.impl
 
-import com.intelligentblokus.intelligentblokus.BlokusPiece
 import com.intelligentblokus.intelligentblokus.BlokusPieceEnum
 import com.intelligentblokus.intelligentblokus.BlokusPieceVariation
+import com.intelligentblokus.intelligentblokus.piece.BlokusPiece
 import org.springframework.stereotype.Component
 
 @Component
