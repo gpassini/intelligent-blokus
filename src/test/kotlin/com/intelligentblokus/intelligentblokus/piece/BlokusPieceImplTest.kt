@@ -1,7 +1,6 @@
 package com.intelligentblokus.intelligentblokus.piece
 
-import com.intelligentblokus.intelligentblokus.BlokusPieceEnum
-import com.intelligentblokus.intelligentblokus.BlokusPieceEnum.*
+import com.intelligentblokus.intelligentblokus.piece.BlokusPieceEnum.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
 import org.hamcrest.core.IsNull.notNullValue

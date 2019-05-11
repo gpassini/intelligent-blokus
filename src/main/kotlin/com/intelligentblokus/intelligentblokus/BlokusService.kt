@@ -1,15 +1,35 @@
 package com.intelligentblokus.intelligentblokus
 
+import com.intelligentblokus.intelligentblokus.exception.NoMoveLeftException
 import com.intelligentblokus.intelligentblokus.piece.BlokusPiece
+import com.intelligentblokus.intelligentblokus.piece.BlokusPieceVariation
+import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayerEnum
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
-class BlokusService @Autowired constructor(val board: BlokusBoard) {
+class BlokusService @Autowired constructor(private val board: BlokusBoard) {
 
+    /**
+     * Throws [NoMoveLeftException] if there are no available moves.
+     */
+    fun getAvailableMoves(playerEnum: BlokusPlayerEnum, availablePieces: List<BlokusPiece>): List<BlokusMove> {
+        return availablePieces
+                .flatMap { it.getVariations() }
+                .flatMap { this.getPieceVariationMoves(it, playerEnum) }
+                .ifEmpty { throw NoMoveLeftException(playerEnum) }
+    }
+
+    /**
+     * Throws [NoMoveLeftException] if there are no available moves.
+     */
+    @Deprecated("This function will disappear since the board should not keep track of whose turn it is.", level = DeprecationLevel.WARNING)
     fun getAvailableMoves(availablePieces: List<BlokusPiece>): List<BlokusMove> {
-        val player = board.getNextPlayer()
-        return availablePieces.flatMap { it.getVariations() }.flatMap { this.getPieceVariationMoves(it, player) }
+        val playerEnum = board.getNextPlayer()
+        return availablePieces
+                .flatMap { it.getVariations() }
+                .flatMap { this.getPieceVariationMoves(it, playerEnum) }
+                .ifEmpty { throw NoMoveLeftException(playerEnum) }
     }
 
     fun passTurn() {
@@ -32,5 +52,9 @@ class BlokusService @Autowired constructor(val board: BlokusBoard) {
             }
         }
         return availableMoves
+    }
+
+    fun playMove(move: BlokusMove): BlokusBoard {
+        return board.playMove(move)
     }
 }

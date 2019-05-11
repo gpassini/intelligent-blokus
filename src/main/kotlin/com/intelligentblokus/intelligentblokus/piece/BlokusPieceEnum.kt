@@ -1,4 +1,4 @@
-package com.intelligentblokus.intelligentblokus
+package com.intelligentblokus.intelligentblokus.piece
 
 import java.util.stream.Stream
 

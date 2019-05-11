@@ -1,5 +1,6 @@
 package com.intelligentblokus.intelligentblokus
 
+import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayerEnum
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -123,14 +124,14 @@ class BlokusBoard(
     }
 
     /**
-     * Returns true if it is the first move from the given player.
+     * Returns true if it is the first move from the given play_strategy.
      */
     private fun isFirstMove(playerEnum: BlokusPlayerEnum): Boolean {
         return board.flatten().none { it == playerEnum.code }
     }
 
     /**
-     * Returns true if the attempted move results is a piece touching another piece from the same player by the side (it is an invalid move).
+     * Returns true if the attempted move results is a piece touching another piece from the same play_strategy by the side (it is an invalid move).
      */
     private fun touchesBySide(move: BlokusMove): Boolean {
         val (player, pieceVariation, x, y) = move
@@ -158,7 +159,7 @@ class BlokusBoard(
     }
 
     /**
-     * Returns true if one of the four adjacent tiles (upper, bottom, right, left) to the given position is already occupied by a piece of the given player.
+     * Returns true if one of the four adjacent tiles (upper, bottom, right, left) to the given position is already occupied by a piece of the given play_strategy.
      */
     private fun hasSamePlayerNeighbor(playerEnum: BlokusPlayerEnum, x: Int, y: Int): Boolean {
         val playerCode = playerEnum.code
@@ -169,7 +170,7 @@ class BlokusBoard(
     }
 
     /**
-     * Returns true if the attempted move results in a piece connected by at least one corner to another piece of the same player (it is a requirement for a valid move).
+     * Returns true if the attempted move results in a piece connected by at least one corner to another piece of the same play_strategy (it is a requirement for a valid move).
      */
     private fun isPieceLinkedDiagonally(move: BlokusMove): Boolean {
         val (player, pieceVariation, x, y) = move
@@ -183,12 +184,12 @@ class BlokusBoard(
                 }
             }
         }
-        log.debug("Invalid move. The piece is not linked to another piece of the same player")
+        log.debug("Invalid move. The piece is not linked to another piece of the same play_strategy")
         return false
     }
 
     /**
-     * Returns true if one of the four cornering tiles of the given position is already occupied by a piece of the given player.
+     * Returns true if one of the four cornering tiles of the given position is already occupied by a piece of the given play_strategy.
      */
     private fun hasSamePlayerDiagonalNeighbor(playerEnum: BlokusPlayerEnum, x: Int, y: Int): Boolean {
         val playerCode = playerEnum.code
@@ -209,7 +210,7 @@ class BlokusBoard(
     private fun controlPlayerTurn(playerEnum: BlokusPlayerEnum) {
         val expectedPlayer = getNextPlayer()
         if (expectedPlayer != playerEnum) {
-            throw IllegalArgumentException("It is not player $playerEnum's turn. It is player $expectedPlayer's turn.")
+            throw IllegalArgumentException("It is not play_strategy $playerEnum's turn. It is play_strategy $expectedPlayer's turn.")
         }
     }
 
