@@ -12,9 +12,7 @@ class BlokusBoard(
         /**
          * 2D matrix representing the board.
          */
-        private val board: List<MutableList<Int>> = initBoard(),
-
-        private var turn: Int = 0
+        private val board: List<MutableList<Int>> = initBoard()
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -54,14 +52,7 @@ class BlokusBoard(
                 }
             }
         }
-        turn++
         return this
-    }
-
-    fun passTurn() {
-        val player = getNextPlayer()
-        log.info("Player $player passes their turn.")
-        turn++
     }
 
     fun isEmpty(x: Int, y: Int): Boolean {
@@ -77,7 +68,6 @@ class BlokusBoard(
      */
     fun isValidMove(move: BlokusMove): Boolean {
         val (player, _, x, y) = move
-        controlPlayerTurn(player)
         controlOutOfBoundsPosition(x, y)
         if (isFirstMove(player)) {
             log.debug("Player $player first move.")
@@ -87,12 +77,6 @@ class BlokusBoard(
         return isEmpty(move.pieceVariation.shape, x, y)
                 && touchesBySide(move).not()
                 && isPieceLinkedDiagonally(move)
-    }
-
-    fun getNextPlayer(): BlokusPlayerEnum {
-        val numberOfPlayers = BlokusPlayerEnum.values().size
-        val playerOrdinalNumber = turn % numberOfPlayers
-        return BlokusPlayerEnum.values()[playerOrdinalNumber]
     }
 
     /**
@@ -204,13 +188,6 @@ class BlokusBoard(
         return when (playerEnum) {
             BlokusPlayerEnum.BLACK -> offset
             BlokusPlayerEnum.WHITE -> BOARD_SIZE - 1 - offset
-        }
-    }
-
-    private fun controlPlayerTurn(playerEnum: BlokusPlayerEnum) {
-        val expectedPlayer = getNextPlayer()
-        if (expectedPlayer != playerEnum) {
-            throw IllegalArgumentException("It is not play_strategy $playerEnum's turn. It is play_strategy $expectedPlayer's turn.")
         }
     }
 

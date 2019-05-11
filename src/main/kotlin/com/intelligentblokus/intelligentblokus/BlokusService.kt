@@ -20,22 +20,6 @@ class BlokusService @Autowired constructor(private val board: BlokusBoard) {
                 .ifEmpty { throw NoMoveLeftException(playerEnum) }
     }
 
-    /**
-     * Throws [NoMoveLeftException] if there are no available moves.
-     */
-    @Deprecated("This function will disappear since the board should not keep track of whose turn it is.", level = DeprecationLevel.WARNING)
-    fun getAvailableMoves(availablePieces: List<BlokusPiece>): List<BlokusMove> {
-        val playerEnum = board.getNextPlayer()
-        return availablePieces
-                .flatMap { it.getVariations() }
-                .flatMap { this.getPieceVariationMoves(it, playerEnum) }
-                .ifEmpty { throw NoMoveLeftException(playerEnum) }
-    }
-
-    fun passTurn() {
-        board.passTurn()
-    }
-
     private fun getPieceVariationMoves(pieceVariation: BlokusPieceVariation, playerEnum: BlokusPlayerEnum): List<BlokusMove> {
         val availableMoves: MutableList<BlokusMove> = mutableListOf()
         val pieceShape = pieceVariation.shape

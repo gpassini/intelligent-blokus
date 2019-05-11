@@ -13,7 +13,7 @@ internal class BlokusBoardTest {
 
     private companion object {
         const val EMPTY_TILE = 0
-        val MOVE = BlokusMove(BlokusPlayerEnum.BLACK, BlokusPiece1.getVariations()[0], 0, 0)
+        val MOVE = BlokusMove(BlokusPlayerEnum.BLACK, BlokusPiece1.getVariations()[0], 1, 1)
     }
 
     @Test
@@ -38,14 +38,14 @@ internal class BlokusBoardTest {
     @Test
     internal fun testIsTileEmptyFalse() {
         val blokusBoard = BlokusBoard().playMove(MOVE)
-        assertThat(blokusBoard.isEmpty(0, 0), `is`(false))
-        assertThat(blokusBoard.isNotEmpty(0, 0), `is`(true))
+        assertThat(blokusBoard.isEmpty(MOVE.x, MOVE.y), `is`(false))
+        assertThat(blokusBoard.isNotEmpty(MOVE.x, MOVE.y), `is`(true))
     }
 
     @Test
     internal fun testPlayMoveAndPeek() {
         val blokusBoard = BlokusBoard().playMove(MOVE)
-        assertThat(blokusBoard.peek(0, 0), `is`(not(EMPTY_TILE)))
+        assertThat(blokusBoard.peek(MOVE.x, MOVE.y), `is`(not(EMPTY_TILE)))
     }
 
     @Test
@@ -72,7 +72,7 @@ internal class BlokusBoardTest {
         val blokusBoard = BlokusBoard()
         blokusBoard.playMove(MOVE)
         val illegalArgumentException = assertThrows<IllegalArgumentException> { blokusBoard.playMove(MOVE) }
-        assertThat(illegalArgumentException.message, `is`("The move is invalid"))
+        assertThat(illegalArgumentException.message, `is`("The move is invalid."))
     }
 
     @Test

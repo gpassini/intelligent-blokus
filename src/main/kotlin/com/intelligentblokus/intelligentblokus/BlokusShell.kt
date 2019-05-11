@@ -17,16 +17,6 @@ class BlokusShell @Autowired constructor(private val blokusService: BlokusServic
         return blokusService.playMove(BlokusMove(BlokusPlayerEnum.BLACK, BlokusPiece1.getVariations()[0], x, y)).toString()
     }
 
-    @ShellMethod(value = "Play randomly.", key = ["r"])
-    fun playRandom(): String {
-        val availableMoves = blokusService.getAvailableMoves(pieces)
-        if (availableMoves.isEmpty()) {
-            blokusService.passTurn()
-            return "Game over"
-        }
-        return blokusService.playMove(availableMoves.shuffled()[0]).toString()
-    }
-
     @ShellMethod(value = "Play a turn using the pre-programmed strategies", key = ["s"])
     fun playStrategy(): String {
         return gameMaster.play().toString()
