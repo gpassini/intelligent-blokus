@@ -9,12 +9,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(properties = [
-	InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
-	ScriptShellApplicationRunner.SPRING_SHELL_SCRIPT_ENABLED + "=false"])
+    InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
+    ScriptShellApplicationRunner.SPRING_SHELL_SCRIPT_ENABLED + "=false"])
 internal class IntelligentblokusApplicationTests {
 
-	@Test
-	fun contextLoads() {
-	}
+    @Test
+    fun contextLoads() {
+    }
 
 }

@@ -6,7 +6,7 @@ import com.intelligentblokus.intelligentblokus.piece.BlokusPieceVariation
 import org.springframework.stereotype.Component
 
 @Component
-class BlokusPieceI5: AbstractBlokusPiece() {
+class BlokusPieceI5 : AbstractBlokusPiece() {
     private val variations = listOf(
             this.createVariation(listOf(
                     listOf(1, 1, 1, 1, 1))),

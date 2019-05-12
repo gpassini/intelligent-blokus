@@ -17,5 +17,4 @@ abstract class AbstractBlokusPiece : BlokusPiece {
         return getEnum().hashCode()
     }
 
-
 }

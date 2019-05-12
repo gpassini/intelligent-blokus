@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-class BlokusRandomPlayStrategy @Autowired constructor(private val blokusService: BlokusService): BlokusPlayStrategy {
+class BlokusRandomPlayStrategy @Autowired constructor(private val blokusService: BlokusService) : BlokusPlayStrategy {
 
     override fun play(gameState: BlokusGameState): BlokusMove {
         val (_, playerEnum, pieces) = gameState.getNextPlayer()

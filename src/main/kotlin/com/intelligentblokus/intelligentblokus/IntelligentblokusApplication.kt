@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class IntelligentblokusApplication
 
 fun main(args: Array<String>) {
-	runApplication<IntelligentblokusApplication>(*args)
+    runApplication<IntelligentblokusApplication>(*args)
 }
