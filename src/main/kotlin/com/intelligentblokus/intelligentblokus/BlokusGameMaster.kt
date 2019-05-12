@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 @Service
 class BlokusGameMaster @Autowired constructor(private val board: BlokusBoard,
                                               playStrategies: List<BlokusPlayStrategy>,
-                                              @Suppress("SpringJavaInjectionPointsAutowiringInspection") pieces: List<BlokusPiece>) {
+                                              pieces: List<BlokusPiece>) {
     private val log = LoggerFactory.getLogger(javaClass)
     private var turn = 0
     private val players: List<BlokusPlayer>
@@ -21,23 +21,30 @@ class BlokusGameMaster @Autowired constructor(private val board: BlokusBoard,
             throw IllegalStateException("At least one BlokusPlayStrategy implementation bean must be available.")
         }
         val blokusPlayerEnumsArray = BlokusPlayerEnum.values()
-        players = blokusPlayerEnumsArray.mapIndexed { index, blokusPlayerEnum -> BlokusPlayer(playStrategies[index % playStrategies.size], blokusPlayerEnum, pieces.toMutableList()) }
+        players = blokusPlayerEnumsArray.mapIndexed { index, blokusPlayerEnum -> BlokusPlayer(playStrategies[index % playStrategies.size], blokusPlayerEnum, pieces.toMutableSet()) }
         log.info("Players: {}", players)
     }
 
-    public fun play(): BlokusBoard {
+    fun play(): BlokusBoard {
         val gameState = getGameState()
         try {
-            val move = gameState.play()
-            log.info("Move: {}", move)
-            board.playMove(move)
+            playMove(gameState)
         } catch (e: NoMoveLeftException) {
-            log.info("Player {} has no moves left.", e.playerEnum)
-            gameState.getNextPlayer().gameOver = true
+            val player = gameState.getNextPlayer()
+            log.info("Player {} has no moves left.", player.playerEnum)
+            player.gameOver = true
         } finally {
             turn++
         }
         return board
+    }
+
+    private fun playMove(gameState: BlokusGameState) {
+        val player = gameState.getNextPlayer()
+        val move = player.play(gameState)
+        log.info("Move: {}", move)
+        board.playMove(move)
+        player.pieces.remove(move.pieceVariation.blokusPiece)
     }
 
     private fun getPlayersOrder(): List<BlokusPlayer> {

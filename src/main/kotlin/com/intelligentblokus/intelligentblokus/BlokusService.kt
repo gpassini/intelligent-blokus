@@ -13,11 +13,11 @@ class BlokusService @Autowired constructor(private val board: BlokusBoard) {
     /**
      * Throws [NoMoveLeftException] if there are no available moves.
      */
-    fun getAvailableMoves(playerEnum: BlokusPlayerEnum, availablePieces: List<BlokusPiece>): List<BlokusMove> {
+    fun getAvailableMoves(playerEnum: BlokusPlayerEnum, availablePieces: Set<BlokusPiece>): List<BlokusMove> {
         return availablePieces
                 .flatMap { it.getVariations() }
                 .flatMap { this.getPieceVariationMoves(it, playerEnum) }
-                .ifEmpty { throw NoMoveLeftException(playerEnum) }
+                .ifEmpty { throw NoMoveLeftException() }
     }
 
     private fun getPieceVariationMoves(pieceVariation: BlokusPieceVariation, playerEnum: BlokusPlayerEnum): List<BlokusMove> {

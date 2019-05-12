@@ -28,7 +28,6 @@ internal class BlokusPieceImplTest {
         )
     }
 
-    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private lateinit var pieces: List<BlokusPiece>
 

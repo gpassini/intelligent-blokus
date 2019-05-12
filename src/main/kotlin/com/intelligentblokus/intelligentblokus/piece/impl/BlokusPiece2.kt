@@ -1,15 +1,15 @@
 package com.intelligentblokus.intelligentblokus.piece.impl
 
-import com.intelligentblokus.intelligentblokus.piece.BlokusPiece
+import com.intelligentblokus.intelligentblokus.piece.AbstractBlokusPiece
 import com.intelligentblokus.intelligentblokus.piece.BlokusPieceEnum
 import com.intelligentblokus.intelligentblokus.piece.BlokusPieceVariation
 import org.springframework.stereotype.Component
 
 @Component
-object BlokusPiece2: BlokusPiece {
+class BlokusPiece2: AbstractBlokusPiece() {
     private val variations = listOf(
-            createVariation(listOf(listOf(1, 1))),
-            createVariation(listOf(listOf(1), listOf(1)))
+            this.createVariation(listOf(listOf(1, 1))),
+            this.createVariation(listOf(listOf(1), listOf(1)))
     )
 
     override fun getEnum(): BlokusPieceEnum = BlokusPieceEnum.TWO
