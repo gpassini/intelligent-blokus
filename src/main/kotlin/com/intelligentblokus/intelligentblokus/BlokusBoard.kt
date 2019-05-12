@@ -17,7 +17,8 @@ class BlokusBoard(
     private val log = LoggerFactory.getLogger(javaClass)
 
     companion object {
-        const val BOARD_SIZE = 5
+        const val BOARD_SIZE = 14
+        const val START_OFFSET = 5
 
         @JvmStatic
         private fun initBoard(): List<MutableList<Int>> = IntRange(0, BOARD_SIZE - 1).map { initLine() }.toList()
@@ -71,12 +72,22 @@ class BlokusBoard(
         controlOutOfBoundsPosition(x, y)
         if (isFirstMove(player)) {
             log.debug("Player $player first move.")
-            val startingPosition = getStartingPosition(player)
-            return x == startingPosition && y == startingPosition
+            return isOverStartingPoint(move)
         }
         return isEmpty(move.pieceVariation.shape, x, y)
                 && touchesBySide(move).not()
                 && isPieceLinkedDiagonally(move)
+    }
+
+    private fun isOverStartingPoint(move: BlokusMove): Boolean {
+        val (playerEnum, pieceVariation, x, y) = move
+        val startingPosition = getStartingPosition(playerEnum)
+        val xDistance = startingPosition - x
+        val yDistance = startingPosition - y
+        val pieceShape = pieceVariation.shape
+        return xDistance in 0 until pieceShape.size &&
+                yDistance in 0 until pieceShape[0].size &&
+                pieceShape[xDistance][yDistance] == 1
     }
 
     /**
@@ -184,10 +195,9 @@ class BlokusBoard(
     }
 
     private fun getStartingPosition(playerEnum: BlokusPlayerEnum): Int {
-        val offset = (BOARD_SIZE - 1) / 4
         return when (playerEnum) {
-            BlokusPlayerEnum.BLACK -> offset
-            BlokusPlayerEnum.WHITE -> BOARD_SIZE - 1 - offset
+            BlokusPlayerEnum.BLACK -> START_OFFSET - 1
+            BlokusPlayerEnum.WHITE -> BOARD_SIZE - START_OFFSET
         }
     }
 
