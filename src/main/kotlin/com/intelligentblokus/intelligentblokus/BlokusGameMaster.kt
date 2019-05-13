@@ -35,8 +35,31 @@ class BlokusGameMaster @Autowired constructor(private val board: BlokusBoard,
             player.gameOver = true
         } finally {
             turn++
+            verifyGameOver()
         }
         return board
+    }
+
+    private fun verifyGameOver() {
+        if (players.all { it.gameOver }) {
+            val tilesByPlayer: Map<BlokusPlayerEnum, Int> = players.associateBy(
+                    { it.playerEnum },
+                    {
+                        it.pieces
+                                .map { piece -> piece.getTilesNumber() }
+                                .reduce { acc, tiles -> acc + tiles }
+                    })
+            showScore(tilesByPlayer)
+        }
+    }
+
+    private fun showScore(tilesByPlayer: Map<BlokusPlayerEnum, Int>) {
+        tilesByPlayer.ifEmpty { throw IllegalArgumentException("The players list must not be empty.") }
+        val minimumTiles = tilesByPlayer.maxBy { it.value }!!.value
+        val winners: Set<BlokusPlayerEnum> = tilesByPlayer.filterValues { it == minimumTiles }.keys
+        log.info("Player(s) {} won!", winners.joinToString())
+        log.info("Final score:")
+        tilesByPlayer.forEach { (player, tilesNumber) -> log.info("{}: {}", player, tilesNumber) }
     }
 
     private fun playMove(gameState: BlokusGameState) {

@@ -6,7 +6,7 @@ interface BlokusPiece {
 
     fun getVariations(): List<BlokusPieceVariation>
 
-    fun createVariation(variation: List<List<Int>>): BlokusPieceVariation {
-        return BlokusPieceVariation(this, variation)
-    }
+    fun createVariation(variation: List<List<Int>>) = BlokusPieceVariation(this, variation)
+
+    fun getTilesNumber(): Int = getVariations()[0].shape.flatten().reduce { acc, i -> acc + i }
 }
