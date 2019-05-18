@@ -3,3 +3,8 @@ logging:
     root: warn
     org.springframework: info
     com.intelligentblokus: info
+
+blokus:
+  players:
+    random: true
+    big-pieces: true

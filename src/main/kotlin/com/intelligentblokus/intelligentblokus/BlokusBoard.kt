@@ -79,6 +79,10 @@ class BlokusBoard(
                 && isPieceLinkedDiagonally(move)
     }
 
+    fun reset() {
+        board.forEach { it.replaceAll { 0 } }
+    }
+
     private fun isOverStartingPoint(move: BlokusMove): Boolean {
         val (playerEnum, pieceVariation, x, y) = move
         val startingPosition = getStartingPosition(playerEnum)

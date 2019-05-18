@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service
 
 @Service
 class BlokusGameMaster @Autowired constructor(private val board: BlokusBoard,
-                                              playStrategies: List<BlokusPlayStrategy>,
-                                              pieces: List<BlokusPiece>) {
+                                              private val pieces: Set<BlokusPiece>,
+                                              playStrategies: List<BlokusPlayStrategy>) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private var turn = 0
     private val players: List<BlokusPlayer>
+    private var turn = 0
 
     init {
         if (playStrategies.isEmpty()) {
@@ -40,8 +40,21 @@ class BlokusGameMaster @Autowired constructor(private val board: BlokusBoard,
         return board
     }
 
+    fun isGameOver(): Boolean {
+        return players.all { it.gameOver }
+    }
+
+    fun reset() {
+        board.reset()
+        turn = 0
+        players.forEach {
+            it.gameOver = false
+            it.pieces.addAll(pieces.toMutableSet())
+        }
+    }
+
     private fun verifyGameOver() {
-        if (players.all { it.gameOver }) {
+        if (isGameOver()) {
             val tilesByPlayer: Map<BlokusPlayerEnum, Int> = players.associateBy(
                     { it.playerEnum },
                     {
@@ -55,7 +68,7 @@ class BlokusGameMaster @Autowired constructor(private val board: BlokusBoard,
 
     private fun showScore(tilesByPlayer: Map<BlokusPlayerEnum, Int>) {
         tilesByPlayer.ifEmpty { throw IllegalArgumentException("The players list must not be empty.") }
-        val minimumTiles = tilesByPlayer.maxBy { it.value }!!.value
+        val minimumTiles = tilesByPlayer.minBy { it.value }!!.value
         val winners: Set<BlokusPlayerEnum> = tilesByPlayer.filterValues { it == minimumTiles }.keys
         log.info("Player(s) {} won!", winners.joinToString())
         log.info("Final score:")

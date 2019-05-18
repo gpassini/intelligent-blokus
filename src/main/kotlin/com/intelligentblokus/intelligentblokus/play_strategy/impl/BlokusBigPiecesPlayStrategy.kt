@@ -5,9 +5,11 @@ import com.intelligentblokus.intelligentblokus.BlokusMove
 import com.intelligentblokus.intelligentblokus.BlokusService
 import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayStrategy
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 @Component
+@ConditionalOnProperty("blokus.players.big-pieces")
 class BlokusBigPiecesPlayStrategy @Autowired constructor(private val blokusService: BlokusService) : BlokusPlayStrategy {
 
     override fun play(gameState: BlokusGameState): BlokusMove {
