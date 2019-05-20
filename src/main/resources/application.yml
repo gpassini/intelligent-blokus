@@ -6,5 +6,5 @@ logging:
 
 blokus:
   players:
-    random: true
-    big-pieces: true
+    black: big_pieces
+    white: random

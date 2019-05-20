@@ -3,7 +3,9 @@ package com.intelligentblokus.intelligentblokus
 import com.intelligentblokus.intelligentblokus.exception.NoMoveLeftException
 import com.intelligentblokus.intelligentblokus.piece.BlokusPiece
 import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayStrategy
+import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayStrategyEnum
 import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayerEnum
+import com.intelligentblokus.intelligentblokus.property.BlokusProperties
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -11,19 +13,20 @@ import org.springframework.stereotype.Service
 @Service
 class BlokusGameMaster @Autowired constructor(private val board: BlokusBoard,
                                               private val pieces: Set<BlokusPiece>,
-                                              playStrategies: List<BlokusPlayStrategy>) {
+                                              playStrategies: List<BlokusPlayStrategy>,
+                                              blokusProperties: BlokusProperties) {
     private val log = LoggerFactory.getLogger(javaClass)
     private val players: List<BlokusPlayer>
     private var turn = 0
 
     init {
-        if (playStrategies.isEmpty()) {
-            throw IllegalStateException("At least one BlokusPlayStrategy implementation bean must be available.")
-        }
-        val blokusPlayerEnumsArray = BlokusPlayerEnum.values()
-        players = blokusPlayerEnumsArray.mapIndexed { index, blokusPlayerEnum -> BlokusPlayer(playStrategies[index % playStrategies.size], blokusPlayerEnum, pieces.toMutableSet()) }
-        log.info("Players: {}", players)
+        players = blokusProperties.players.map { playerEntry -> BlokusPlayer(playerEntry.key, getPlayStrategyBean(playStrategies, playerEntry.value), pieces.toMutableSet()) }
+        log.info("Players: {}", players.joinToString(prefix = "\n", separator = "\n"))
     }
+
+    private fun getPlayStrategyBean(playStrategies: List<BlokusPlayStrategy>, playStrategyEnum: BlokusPlayStrategyEnum) =
+            playStrategies.find { it.getEnum() == playStrategyEnum }
+                    ?: throw IllegalStateException("No play strategy [ $playStrategyEnum ] found.")
 
     fun play(): BlokusBoard {
         val gameState = getGameState()

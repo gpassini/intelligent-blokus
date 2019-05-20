@@ -6,4 +6,6 @@ import com.intelligentblokus.intelligentblokus.BlokusMove
 interface BlokusPlayStrategy {
 
     fun play(gameState: BlokusGameState): BlokusMove
+
+    fun getEnum(): BlokusPlayStrategyEnum
 }

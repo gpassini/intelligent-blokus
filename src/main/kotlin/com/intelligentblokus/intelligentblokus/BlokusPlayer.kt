@@ -5,8 +5,8 @@ import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayStrategy
 import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayerEnum
 
 data class BlokusPlayer(
-        val playStrategy: BlokusPlayStrategy,
         val playerEnum: BlokusPlayerEnum,
+        val playStrategy: BlokusPlayStrategy,
         val pieces: MutableSet<BlokusPiece>,
         var gameOver: Boolean = false) {
     fun play(gameState: BlokusGameState) = playStrategy.play(gameState)
