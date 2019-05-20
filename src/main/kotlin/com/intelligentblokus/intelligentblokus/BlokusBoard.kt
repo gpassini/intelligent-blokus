@@ -2,30 +2,42 @@ package com.intelligentblokus.intelligentblokus
 
 import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayerEnum
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
 
 /**
  * Blokus board model and utility functions.
  */
-@Component
 class BlokusBoard(
         /**
          * 2D matrix representing the board.
          */
-        private val board: List<MutableList<Int>> = initBoard()
+        private val board: List<List<Int>> = List(BOARD_SIZE) { List(BOARD_SIZE) { 0 } }
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
-
     companion object {
         const val BOARD_SIZE = 14
-        const val START_OFFSET = 5
+        private const val START_OFFSET = 5
 
         @JvmStatic
-        private fun initBoard(): List<MutableList<Int>> = IntRange(0, BOARD_SIZE - 1).map { initLine() }.toList()
+        private fun isOverStartingPoint(move: BlokusMove): Boolean {
+            val (playerEnum, pieceVariation, x, y) = move
+            val startingPosition = getStartingPosition(playerEnum)
+            val xDistance = startingPosition - x
+            val yDistance = startingPosition - y
+            val pieceShape = pieceVariation.shape
+            return xDistance in 0 until pieceShape.size &&
+                    yDistance in 0 until pieceShape[0].size &&
+                    pieceShape[xDistance][yDistance] == 1
+        }
 
         @JvmStatic
-        private fun initLine(): MutableList<Int> = IntRange(0, BOARD_SIZE - 1).map { 0 }.toCollection(mutableListOf())
+        private fun getStartingPosition(playerEnum: BlokusPlayerEnum): Int {
+            return when (playerEnum) {
+                BlokusPlayerEnum.BLACK -> START_OFFSET - 1
+                BlokusPlayerEnum.WHITE -> BOARD_SIZE - START_OFFSET
+            }
+        }
     }
+
+    private val log = LoggerFactory.getLogger(javaClass)
 
     /**
      * Returns the value of the tile at the given position.
@@ -42,18 +54,22 @@ class BlokusBoard(
         if (isValidMove(blokusMove).not()) {
             throw IllegalArgumentException("The move is invalid.")
         }
+
+        val cloneBoard = board.map { it.toMutableList() }.toList()
         val (player, pieceVariation, x, y) = blokusMove
         val piece = pieceVariation.shape
         val pieceXSize = piece.size
         val pieceYSize = piece[0].size
+
         for (i in 0 until pieceXSize) {
             for (j in 0 until pieceYSize) {
                 if (piece[i][j] != 0) {
-                    board[i + x][j + y] = player.code
+                    cloneBoard[i + x][j + y] = player.code
                 }
             }
         }
-        return this
+
+        return BlokusBoard(cloneBoard)
     }
 
     fun isEmpty(x: Int, y: Int): Boolean {
@@ -79,20 +95,7 @@ class BlokusBoard(
                 && isPieceLinkedDiagonally(move)
     }
 
-    fun reset() {
-        board.forEach { it.replaceAll { 0 } }
-    }
-
-    private fun isOverStartingPoint(move: BlokusMove): Boolean {
-        val (playerEnum, pieceVariation, x, y) = move
-        val startingPosition = getStartingPosition(playerEnum)
-        val xDistance = startingPosition - x
-        val yDistance = startingPosition - y
-        val pieceShape = pieceVariation.shape
-        return xDistance in 0 until pieceShape.size &&
-                yDistance in 0 until pieceShape[0].size &&
-                pieceShape[xDistance][yDistance] == 1
-    }
+    fun copy(): BlokusBoard = BlokusBoard(board.map { it.toList() }.toList())
 
     /**
      * Returns a textual representation of this board.
@@ -196,13 +199,6 @@ class BlokusBoard(
                 || x + 1 < BOARD_SIZE && y - 1 >= 0 && peek(x + 1, y - 1) == playerCode
                 || x - 1 >= 0 && y + 1 < BOARD_SIZE && peek(x - 1, y + 1) == playerCode
                 || x + 1 < BOARD_SIZE && y + 1 < BOARD_SIZE && peek(x + 1, y + 1) == playerCode
-    }
-
-    private fun getStartingPosition(playerEnum: BlokusPlayerEnum): Int {
-        return when (playerEnum) {
-            BlokusPlayerEnum.BLACK -> START_OFFSET - 1
-            BlokusPlayerEnum.WHITE -> BOARD_SIZE - START_OFFSET
-        }
     }
 
 }

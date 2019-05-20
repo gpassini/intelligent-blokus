@@ -9,5 +9,10 @@ data class BlokusPlayer(
         val playStrategy: BlokusPlayStrategy,
         val pieces: MutableSet<BlokusPiece>,
         var gameOver: Boolean = false) {
+
     fun play(gameState: BlokusGameState) = playStrategy.play(gameState)
+
+    fun tilesNumberLeft() = pieces.map { it.getTilesNumber() }.sum()
+
+    fun copy() = BlokusPlayer(playerEnum, playStrategy, pieces.toMutableSet(), gameOver)
 }

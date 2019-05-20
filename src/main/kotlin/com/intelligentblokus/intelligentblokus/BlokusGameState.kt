@@ -1,8 +1,11 @@
 package com.intelligentblokus.intelligentblokus
 
-import java.util.Optional
-import kotlin.NoSuchElementException
+import com.intelligentblokus.intelligentblokus.piece.BlokusPiece
+import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayerEnum
 
-data class BlokusGameState(val board: BlokusBoard, val players: List<BlokusPlayer>) {
-    fun getNextPlayer(): BlokusPlayer = Optional.ofNullable(players.firstOrNull()).orElseThrow { NoSuchElementException("No player found.") }
-}
+data class BlokusGameState(
+        val board: BlokusBoard,
+        /**
+         * Current ordered players list
+         */
+        val players: LinkedHashMap<BlokusPlayerEnum, List<BlokusPiece>>)

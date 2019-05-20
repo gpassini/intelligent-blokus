@@ -4,23 +4,27 @@ import com.intelligentblokus.intelligentblokus.exception.NoMoveLeftException
 import com.intelligentblokus.intelligentblokus.piece.BlokusPiece
 import com.intelligentblokus.intelligentblokus.piece.BlokusPieceVariation
 import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayerEnum
-import org.springframework.beans.factory.annotation.Autowired
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class BlokusService @Autowired constructor(private val board: BlokusBoard) {
+class BlokusService {
+
+    private val log = LoggerFactory.getLogger(javaClass)
 
     /**
      * Throws [NoMoveLeftException] if there are no available moves.
      */
-    fun getAvailableMoves(playerEnum: BlokusPlayerEnum, availablePieces: Set<BlokusPiece>): List<BlokusMove> {
-        return availablePieces
+    fun getAvailableMoves(playerEnum: BlokusPlayerEnum, availablePieces: List<BlokusPiece>, board: BlokusBoard): List<BlokusMove> {
+        val availableMoves = availablePieces
                 .flatMap { it.getVariations() }
-                .flatMap { this.getPieceVariationMoves(it, playerEnum) }
+                .flatMap { this.getPieceVariationMoves(it, playerEnum, board) }
                 .ifEmpty { throw NoMoveLeftException() }
+        log.debug("${availableMoves.size} available moves for player $playerEnum with ${availablePieces.size} pieces")
+        return availableMoves
     }
 
-    private fun getPieceVariationMoves(pieceVariation: BlokusPieceVariation, playerEnum: BlokusPlayerEnum): List<BlokusMove> {
+    private fun getPieceVariationMoves(pieceVariation: BlokusPieceVariation, playerEnum: BlokusPlayerEnum, board: BlokusBoard): List<BlokusMove> {
         val availableMoves: MutableList<BlokusMove> = mutableListOf()
         val pieceShape = pieceVariation.shape
         val xPieceSize = pieceShape.size
@@ -36,9 +40,5 @@ class BlokusService @Autowired constructor(private val board: BlokusBoard) {
             }
         }
         return availableMoves
-    }
-
-    fun playMove(move: BlokusMove): BlokusBoard {
-        return board.playMove(move)
     }
 }

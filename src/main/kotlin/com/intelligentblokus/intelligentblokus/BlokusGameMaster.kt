@@ -11,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
-class BlokusGameMaster @Autowired constructor(private val board: BlokusBoard,
-                                              private val pieces: Set<BlokusPiece>,
+class BlokusGameMaster @Autowired constructor(private val pieces: Set<BlokusPiece>,
                                               playStrategies: List<BlokusPlayStrategy>,
                                               blokusProperties: BlokusProperties) {
     private val log = LoggerFactory.getLogger(javaClass)
     private val players: List<BlokusPlayer>
+    private var board = BlokusBoard()
     private var turn = 0
 
     init {
@@ -33,9 +33,8 @@ class BlokusGameMaster @Autowired constructor(private val board: BlokusBoard,
         try {
             playMove(gameState)
         } catch (e: NoMoveLeftException) {
-            val player = gameState.getNextPlayer()
-            log.info("Player {} has no moves left.", player.playerEnum)
-            player.gameOver = true
+            log.info("Player {} has no moves left.", gameState.players.keys.first())
+            getNextPlayer().gameOver = true
         } finally {
             turn++
             verifyGameOver()
@@ -48,7 +47,7 @@ class BlokusGameMaster @Autowired constructor(private val board: BlokusBoard,
     }
 
     fun reset() {
-        board.reset()
+        board = BlokusBoard()
         turn = 0
         players.forEach {
             it.gameOver = false
@@ -79,21 +78,23 @@ class BlokusGameMaster @Autowired constructor(private val board: BlokusBoard,
     }
 
     private fun playMove(gameState: BlokusGameState) {
-        val player = gameState.getNextPlayer()
+        val player = getNextPlayer()
         val move = player.play(gameState)
         log.info("Move: {}", move)
-        board.playMove(move)
-        player.pieces.remove(move.pieceVariation.blokusPiece)
+        board = board.playMove(move)
+        getNextPlayer().pieces.remove(move.pieceVariation.blokusPiece)
     }
 
-    private fun getPlayersOrder(): List<BlokusPlayer> {
+    private fun getPlayersOrdered(): LinkedHashMap<BlokusPlayerEnum, List<BlokusPiece>> {
         val playersNumber = players.size
         val nextPlayerIndex = turn % playersNumber
         val indices = nextPlayerIndex until nextPlayerIndex + playersNumber
-        return indices.map { players[it % playersNumber] }
+        return linkedMapOf(*indices.map { players[it % playersNumber] }.map { it.playerEnum to it.pieces.toList() }.toTypedArray())
     }
 
     private fun getGameState(): BlokusGameState {
-        return BlokusGameState(board, getPlayersOrder())
+        return BlokusGameState(board.copy(), getPlayersOrdered())
     }
+
+    private fun getNextPlayer() = players[turn % players.size]
 }

@@ -14,8 +14,9 @@ class BlokusBigPiecesPlayStrategy @Autowired constructor(private val blokusServi
     override fun getEnum() = BlokusPlayStrategyEnum.BIG_PIECES
 
     override fun play(gameState: BlokusGameState): BlokusMove {
-        val (playerEnum, _, pieces) = gameState.getNextPlayer()
-        return blokusService.getAvailableMoves(playerEnum, pieces)
+        val (board, piecesByPlayer) = gameState
+        val (playerEnum, pieces) = piecesByPlayer.asSequence().first()
+        return blokusService.getAvailableMoves(playerEnum, pieces, board)
                 .shuffled()
                 .maxBy { it.pieceVariation.getTilesNumber() }!!
     }

@@ -3,8 +3,9 @@ logging:
     root: warn
     org.springframework: info
     com.intelligentblokus: info
+    com.intelligentblokus.intelligentblokus.BlokusService: debug
 
 blokus:
   players:
-    black: big_pieces
     white: random
+    black: big_pieces
