@@ -3,9 +3,15 @@ logging:
     root: warn
     org.springframework: info
     com.intelligentblokus: info
-    com.intelligentblokus.intelligentblokus.BlokusService: debug
+    com:
+      intelligentblokus:
+        intelligentblokus:
+          BlokusService: info
+          play_strategy:
+            impl:
+              BlokusMinimaxPlayStrategy: info
 
 blokus:
   players:
     white: random
-    black: big_pieces
+    black: minimax

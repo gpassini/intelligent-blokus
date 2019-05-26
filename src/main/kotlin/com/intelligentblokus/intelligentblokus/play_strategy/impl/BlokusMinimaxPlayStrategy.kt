@@ -5,6 +5,7 @@ import com.intelligentblokus.intelligentblokus.BlokusMove
 import com.intelligentblokus.intelligentblokus.BlokusService
 import com.intelligentblokus.intelligentblokus.play_strategy.AbstractBlokusPlayStrategy
 import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayStrategyEnum
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import kotlin.math.max
@@ -17,12 +18,14 @@ class BlokusMinimaxPlayStrategy @Autowired constructor(private val blokusService
         const val DEFAULT_DEPTH = 1
     }
 
+    private val log = LoggerFactory.getLogger(this.javaClass)
+
     override fun getEnum() = BlokusPlayStrategyEnum.MINIMAX
 
     override fun play(gameState: BlokusGameState): BlokusMove {
         val (board, piecesByPlayer) = gameState
         val (playerEnum, pieces) = piecesByPlayer.asSequence().first()
-        val availableMoves = blokusService.getAvailableMoves(playerEnum, pieces, board).shuffled()
+        val availableMoves = blokusService.getAvailableMoves(playerEnum, pieces, board).sortedByDescending { it.pieceVariation.getTilesNumber() }
         val possibleStates = availableMoves.map { getNextStateFromMove(it, gameState) }
         val alphabetaScores = possibleStates.map { alphabeta(it, maximizingPlayer = false) }
         return availableMoves[alphabetaScores.indexOf(alphabetaScores.max())]
@@ -62,6 +65,7 @@ class BlokusMinimaxPlayStrategy @Autowired constructor(private val blokusService
         val (board, piecesByPlayer) = gameState
         val (playerEnum, pieces) = piecesByPlayer.asSequence().first()
         val possibleMoves = blokusService.getAvailableMoves(playerEnum, pieces, board)
+        log.debug("Minimax player simulating ${possibleMoves.size} possibles moves for player $playerEnum.")
         return possibleMoves.map { getNextStateFromMove(it, gameState) }
     }
 
