@@ -13,5 +13,5 @@ class BlokusProperties {
      * Ordered players and their strategies.
      */
     @Size(min = 2, max = 2, message = "You must define 2 players.")
-    lateinit var players: Map<BlokusPlayerEnum, BlokusPlayStrategyEnum>
+    lateinit var players: LinkedHashMap<BlokusPlayerEnum, BlokusPlayStrategyEnum>
 }

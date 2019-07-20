@@ -15,13 +15,17 @@ class BlokusGameMaster @Autowired constructor(private val pieces: Set<BlokusPiec
                                               playStrategies: List<BlokusPlayStrategy>,
                                               blokusProperties: BlokusProperties) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private val players: List<BlokusPlayer>
+    private val players: Pair<BlokusPlayer, BlokusPlayer>
     private var board = BlokusBoard()
     private var turn = 0
 
     init {
-        players = blokusProperties.players.map { playerEntry -> BlokusPlayer(playerEntry.key, getPlayStrategyBean(playStrategies, playerEntry.value), pieces.toMutableSet()) }
-        log.info("Players: {}", players.joinToString(prefix = "\n", separator = "\n"))
+        val playersList = blokusProperties.players.entries.map { BlokusPlayer(it.key, getPlayStrategyBean(playStrategies, it.value), pieces.toMutableSet()) }.toList()
+        if (playersList.size != 2) {
+            throw IllegalStateException("Exactly two players must be declared.")
+        }
+        players = Pair(playersList[0], playersList[1])
+        log.info("Players: {}", playersList.joinToString(prefix = System.lineSeparator(), separator = System.lineSeparator()))
     }
 
     private fun getPlayStrategyBean(playStrategies: List<BlokusPlayStrategy>, playStrategyEnum: BlokusPlayStrategyEnum) =
@@ -29,12 +33,13 @@ class BlokusGameMaster @Autowired constructor(private val pieces: Set<BlokusPiec
                     ?: throw IllegalStateException("No play strategy [ $playStrategyEnum ] found.")
 
     fun play(): BlokusBoard {
-        val gameState = getGameState()
+        val gameState = BlokusGameState(board.copy(), getPlayersOrdered())
         try {
-            playMove(gameState)
+            playTurn(gameState)
         } catch (e: NoMoveLeftException) {
-            log.info("Player {} has no moves left.", gameState.players.keys.first())
-            getNextPlayer().gameOver = true
+            val nextPlayer = getNextPlayer()
+            log.info("Player {} has no moves left.", nextPlayer.playerEnum)
+            nextPlayer.gameOver = true
         } finally {
             turn++
             verifyGameOver()
@@ -43,13 +48,13 @@ class BlokusGameMaster @Autowired constructor(private val pieces: Set<BlokusPiec
     }
 
     fun isGameOver(): Boolean {
-        return players.all { it.gameOver }
+        return players.first.gameOver && players.second.gameOver
     }
 
     fun reset() {
         board = BlokusBoard()
         turn = 0
-        players.forEach {
+        listOf(players.first, players.second).forEach {
             it.gameOver = false
             it.pieces.addAll(pieces.toMutableSet())
         }
@@ -57,7 +62,7 @@ class BlokusGameMaster @Autowired constructor(private val pieces: Set<BlokusPiec
 
     private fun verifyGameOver() {
         if (isGameOver()) {
-            val tilesByPlayer: Map<BlokusPlayerEnum, Int> = players.associateBy(
+            val tilesByPlayer: Map<BlokusPlayerEnum, Int> = listOf(players.first, players.second).associateBy(
                     { it.playerEnum },
                     {
                         it.pieces
@@ -77,7 +82,7 @@ class BlokusGameMaster @Autowired constructor(private val pieces: Set<BlokusPiec
         tilesByPlayer.forEach { (player, tilesNumber) -> log.info("{}: {}", player, tilesNumber) }
     }
 
-    private fun playMove(gameState: BlokusGameState) {
+    private fun playTurn(gameState: BlokusGameState) {
         val player = getNextPlayer()
         val move = player.play(gameState)
         log.info("Move: {}", move)
@@ -85,16 +90,13 @@ class BlokusGameMaster @Autowired constructor(private val pieces: Set<BlokusPiec
         getNextPlayer().pieces.remove(move.pieceVariation.blokusPiece)
     }
 
-    private fun getPlayersOrdered(): LinkedHashMap<BlokusPlayerEnum, List<BlokusPiece>> {
-        val playersNumber = players.size
-        val nextPlayerIndex = turn % playersNumber
-        val indices = nextPlayerIndex until nextPlayerIndex + playersNumber
-        return linkedMapOf(*indices.map { players[it % playersNumber] }.map { it.playerEnum to it.pieces.toList() }.toTypedArray())
+    private fun getPlayersOrdered(): Pair<BlokusPlayerState, BlokusPlayerState> {
+        val firstPlayer = players.first
+        val firstPlayerState = BlokusPlayerState(firstPlayer.playerEnum, firstPlayer.pieces.toSet())
+        val secondPlayer = players.second
+        val secondPlayerState = BlokusPlayerState(secondPlayer.playerEnum, secondPlayer.pieces.toSet())
+        return if (turn % 2 == 0) Pair(firstPlayerState, secondPlayerState) else Pair(secondPlayerState, firstPlayerState)
     }
 
-    private fun getGameState(): BlokusGameState {
-        return BlokusGameState(board.copy(), getPlayersOrdered())
-    }
-
-    private fun getNextPlayer() = players[turn % players.size]
+    private fun getNextPlayer() = if (turn % 2 == 0) players.first else players.second
 }

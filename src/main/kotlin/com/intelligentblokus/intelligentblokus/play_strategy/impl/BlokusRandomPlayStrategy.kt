@@ -15,7 +15,7 @@ class BlokusRandomPlayStrategy @Autowired constructor(private val blokusService:
 
     override fun play(gameState: BlokusGameState): BlokusMove {
         val (board, piecesByPlayer) = gameState
-        val (playerEnum, pieces) = piecesByPlayer.asSequence().first()
+        val (playerEnum, pieces) = piecesByPlayer.first
         return blokusService.getAvailableMoves(playerEnum, pieces, board).shuffled().first()
     }
 }

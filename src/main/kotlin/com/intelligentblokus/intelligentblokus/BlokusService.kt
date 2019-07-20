@@ -15,7 +15,7 @@ class BlokusService {
     /**
      * Throws [NoMoveLeftException] if there are no available moves.
      */
-    fun getAvailableMoves(playerEnum: BlokusPlayerEnum, availablePieces: List<BlokusPiece>, board: BlokusBoard): List<BlokusMove> {
+    fun getAvailableMoves(playerEnum: BlokusPlayerEnum, availablePieces: Collection<BlokusPiece>, board: BlokusBoard): List<BlokusMove> {
         val availableMoves = availablePieces
                 .flatMap { it.getVariations() }
                 .flatMap { this.getPieceVariationMoves(it, playerEnum, board) }

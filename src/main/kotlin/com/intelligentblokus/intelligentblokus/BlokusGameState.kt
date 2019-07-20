@@ -1,11 +1,8 @@
 package com.intelligentblokus.intelligentblokus
 
-import com.intelligentblokus.intelligentblokus.piece.BlokusPiece
-import com.intelligentblokus.intelligentblokus.play_strategy.BlokusPlayerEnum
-
 data class BlokusGameState(
         val board: BlokusBoard,
         /**
-         * Current ordered players list
+         * Current ordered players
          */
-        val players: LinkedHashMap<BlokusPlayerEnum, List<BlokusPiece>>)
+        val players: Pair<BlokusPlayerState, BlokusPlayerState>)

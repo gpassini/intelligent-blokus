@@ -104,11 +104,22 @@ class BlokusBoard(
         val stringBuilder = StringBuilder()
         for (line in board) {
             for (tile in line) {
-                stringBuilder.append("| ").append(tile).append(" ")
+                stringBuilder.append("| ").append(symbolFromTile(tile)).append(" ")
             }
             stringBuilder.append("|\n")
         }
         return stringBuilder.toString()
+    }
+
+    private fun symbolFromTile(tile: Int): String {
+        return when (tile) {
+            0 -> " "
+            1 -> "X"
+            2 -> "O"
+            else -> {
+                throw IllegalArgumentException("No symbol for tile $tile")
+            }
+        }
     }
 
     private fun isEmpty(piece: List<List<Int>>, x: Int, y: Int): Boolean {

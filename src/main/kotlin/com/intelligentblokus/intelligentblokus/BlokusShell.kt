@@ -13,11 +13,10 @@ class BlokusShell @Autowired constructor(private val gameMaster: BlokusGameMaste
     }
 
     @ShellMethod(value = "Simulate an entire game", key = ["s"])
-    fun simulate(): String {
+    fun simulate() {
         while (gameMaster.isGameOver().not()) {
-            gameMaster.play()
+            println(gameMaster.play())
         }
-        return gameMaster.play().toString()
     }
 
     @ShellMethod(value = "Resets the game", key = ["r"])

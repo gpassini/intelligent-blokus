@@ -13,5 +13,5 @@ logging:
 
 blokus:
   players:
-    white: random
-    black: minimax
+    white: minimax
+    black: big_pieces
